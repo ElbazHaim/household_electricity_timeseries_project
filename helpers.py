@@ -5,9 +5,10 @@ import statsmodels.api as sm
 from arch.unitroot import ADF
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.graphics.tsaplots import plot_acf
+from sklearn.metrics import mean_squared_error
 
 
-def acf_plot(timeseries, title):
+def acf_plot(timeseries: pd.DataFrame, title: str):
     fig, ax = plt.subplots(figsize=(10, 5))
     plot_acf(timeseries, ax=ax)
     ax.set_xlabel('Lag')
@@ -21,12 +22,10 @@ def acf_plot(timeseries, title):
 def autocovariance(series, lag):
     len_series = len(series)
     mean = np.mean(series)
-
     covarianc_acc=0
     for index in range(lag, len_series):
         summand = (series[index]-mean) * (series[index-lag]-mean)
         covarianc_acc+=summand
-
     autocovariance =  covarianc_acc / len_series
     return autocovariance
 
@@ -38,10 +37,8 @@ def plot_acvf(timeseries, title):
     
     
 def test_arima(timeseries: pd.DataFrame):
-    order_values = [(p, d, q) for p in range(4) for d in range(2) for q in range(4)]
     best_aic = float('inf')
     best_order = None
-
     for p in range(4):
         for d in range(2):
             for q in range(4):
@@ -50,8 +47,7 @@ def test_arima(timeseries: pd.DataFrame):
                 aic = results.aic
                 if aic < best_aic:
                     best_aic = aic
-                    best_order = (p, d, q)
-        
+                    best_order = (p, d, q)       
     return best_order, best_aic
 
 
@@ -71,39 +67,30 @@ def decompose(time_period, period):
     return decomposition.resid.dropna()
 
 
-def plot_acf_subplots(timeseries_list, titles_list):
+def plot_acf_subplots(timeseries_list: list, titles_list: list):
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
     axs = axs.flatten()
-
     for i, timeseries in enumerate(timeseries_list):
         ax = axs[i]
         plot_acf(timeseries, ax=ax, title=titles_list[i], lags=len(timeseries)-1)
-
     plt.tight_layout()
-
-
-def autocovariance(series, lag):
-    len_series = len(series)
-    mean = np.mean(series)
-
-    covarianc_acc=0
-    for index in range(lag, len_series):
-        summand = (series[index]-mean) * (series[index-lag]-mean)
-        covarianc_acc+=summand
-
-    autocovariance =  covarianc_acc / len_series
-    return autocovariance
 
 
 def plot_acvf_subplots(timeseries_list, titles_list):
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
     axs = axs.flatten()
-
     for i, timeseries in enumerate(timeseries_list):
         ax = axs[i]
         acvf = [autocovariance(timeseries, lag) for lag in range(len(timeseries))]
         ax.vlines([i for i in range(len(acvf))], ymax=acvf, ymin=0)
         ax.set_title(titles_list[i])
-
     plt.tight_layout()
     plt.show()
+    
+    
+def rmse(y_true, y_pred, frequency, prediction_period):
+    y_resid= decompose(y_true, frequency)
+    return mean_squared_error(y_resid.to_numpy()[:prediction_period], 
+                              y_pred.to_numpy()[:prediction_period], 
+                              squared=False)
+    
