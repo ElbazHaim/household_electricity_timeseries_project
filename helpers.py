@@ -8,7 +8,7 @@ from statsmodels.graphics.tsaplots import plot_acf
 from sklearn.metrics import mean_squared_error
 
 
-def acf_plot(timeseries: pd.DataFrame, title: str):
+def acf_plot(timeseries: pd.DataFrame, title: str) -> None:
     fig, ax = plt.subplots(figsize=(10, 5))
     plot_acf(timeseries, ax=ax)
     ax.set_xlabel('Lag')
@@ -19,7 +19,7 @@ def acf_plot(timeseries: pd.DataFrame, title: str):
     print('the number of values is:',count)
     
     
-def autocovariance(series, lag):
+def autocovariance(series: pd.DataFrame, lag: int) -> float:
     len_series = len(series)
     mean = np.mean(series)
     covarianc_acc=0
@@ -30,7 +30,7 @@ def autocovariance(series, lag):
     return autocovariance
 
 
-def plot_acvf(timeseries, title):
+def plot_acvf(timeseries: pd.DataFrame, title: str) -> None:
     acvf = [autocovariance(timeseries, lag) for lag in range(len(timeseries))]
     plt.vlines([i for i in range(len(acvf))],ymax=acvf,ymin=0)
     plt.title(title)
@@ -51,7 +51,7 @@ def test_arima(timeseries: pd.DataFrame):
     return best_order, best_aic
 
 
-def decompose(time_period, period):
+def decompose(time_period: pd.DataFrame, period: int) -> pd.DataFrame:
     decomposition = sm.tsa.seasonal_decompose(time_period, model='additive', period=period)
     fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 6))
     axes[0].plot(decomposition.trend)
@@ -67,7 +67,7 @@ def decompose(time_period, period):
     return decomposition.resid.dropna()
 
 
-def plot_acf_subplots(timeseries_list: list, titles_list: list):
+def plot_acf_subplots(timeseries_list: list, titles_list: list) -> None:
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
     axs = axs.flatten()
     for i, timeseries in enumerate(timeseries_list):
@@ -76,7 +76,7 @@ def plot_acf_subplots(timeseries_list: list, titles_list: list):
     plt.tight_layout()
 
 
-def plot_acvf_subplots(timeseries_list, titles_list):
+def plot_acvf_subplots(timeseries_list: list, titles_list: list) -> None:
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
     axs = axs.flatten()
     for i, timeseries in enumerate(timeseries_list):
@@ -88,7 +88,7 @@ def plot_acvf_subplots(timeseries_list, titles_list):
     plt.show()
     
     
-def rmse(y_true, y_pred, frequency, prediction_period):
+def rmse(y_true: np.array, y_pred: np.array, frequency: int, prediction_period: int):
     y_resid= decompose(y_true, frequency)
     return mean_squared_error(y_resid.to_numpy()[:prediction_period], 
                               y_pred.to_numpy()[:prediction_period], 
