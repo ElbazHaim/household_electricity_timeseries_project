@@ -3,3 +3,4 @@ household_power_consumption.txt
 *.png
 *.zip
 slide summary.txt
+*.pyc
