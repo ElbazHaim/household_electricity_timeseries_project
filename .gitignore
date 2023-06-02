@@ -6,3 +6,4 @@ slide summary.txt
 *.pyc
 figures/*
 *.docx
+*.DS_Store
