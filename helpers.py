@@ -89,8 +89,10 @@ def plot_acvf_subplots(timeseries_list: list, titles_list: list) -> None:
     
     
 def rmse(y_true: np.array, y_pred: np.array, frequency: int, prediction_period: int):
-    y_resid= decompose(y_true, frequency)
-    return mean_squared_error(y_resid.to_numpy()[:prediction_period], 
+    decomposition = sm.tsa.seasonal_decompose(y_true, model='additive', period=prediction_period)
+    y_resid = decomposition.resid.dropna()
+    result = mean_squared_error(y_resid.to_numpy()[:prediction_period], 
                               y_pred.to_numpy()[:prediction_period], 
                               squared=False)
+    print(f"RMSE Result: {result}")
     
